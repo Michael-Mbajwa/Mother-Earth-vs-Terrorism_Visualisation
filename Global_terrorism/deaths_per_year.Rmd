@@ -93,13 +93,6 @@ world_fatality %>%
 fatality_by_decade
 ```
 
-```{r}
-library(ggplot2)
-library(extrafont)
-```
-
-
-
 # I can now go ahead to make the Circular Barplot
 ```{r}
 fatality_by_decade %>%
@@ -182,4 +175,66 @@ fatality_by_decade %>%
 ggsave("plot.png", plt,width=9, height=12.6)
 ```
 
+
+# We are now going to create a circular lollipop plot that shows the yearly number of deaths around the world and per continent. The two plots at the end will be combined together to form a dashboard.
+
+To start, lets get the fatalities by continent, group by year so as to ensure it tallies with the data from the world section.
+```{r}
+fatalities %>%
+  filter((Entity %in% c("Australasia & Oceania", "Central America & Caribbean", "Central Asia", "East Asia", "Eastern Europe", "Middle East & North Africa", "North America", "South America", "South Asia", "Southeast Asia", "Sub-Saharan Africa", "Western Europe", "Western Sahara"))) %>%
+  group_by(Year) %>%
+  summarise(Deaths = sum(deaths)) -> total_deaths_continent
+
+total_deaths_continent
+```
+
+```{r}
+diff_deaths2 <- tibble(year = world_fatality$Year,
+                      deaths_world = world_fatality$deaths,
+                      deaths_continent = total_deaths_continent$Deaths,
+                      diff = deaths_world - deaths_continent)
+
+diff_deaths2
+```
+Conclusion: Both groups of data tally.
+
+
+```{r}
+fatalities %>%
+  filter((Entity %in% c("Australasia & Oceania", "Central America & Caribbean", "Central Asia", "East Asia", "Eastern Europe", "Middle East & North Africa", "North America", "South America", "South Asia", "Southeast Asia", "Sub-Saharan Africa", "Western Europe", "Western Sahara"))) %>%
+  mutate(Continent = case_when(
+    str_detect(Entity, "Asia") ~ "Asia",
+    str_detect(Entity, "Europe") ~ "Europe",
+    TRUE ~ Entity
+  )) %>%
+  group_by(Continent, Year) %>%
+  summarise(Deaths = sum(deaths)) -> fatality_by_continents
+```
+
+Load required packages
+```{r}
+library(ggtext)
+library(patchwork)
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
 
