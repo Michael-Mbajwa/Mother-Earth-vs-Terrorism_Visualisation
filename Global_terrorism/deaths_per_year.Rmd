@@ -110,11 +110,6 @@ fatality_by_decade %>%
            position = "dodge2",
            show.legend = TRUE,
            alpha = .9) +
-  geom_point(aes(x = Decade,
-               y = Deaths,
-               fill = Deaths),
-             size = 2, 
-             color = "gray12") +
   geom_segment(aes(x = Decade,
                y = 0,
                xend = Decade,
