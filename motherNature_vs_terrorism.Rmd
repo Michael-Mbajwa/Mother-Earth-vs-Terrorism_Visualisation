@@ -23,9 +23,9 @@ library(purrr)
 
 Load the datasets
 ```{r}
-fatalities <- read_csv("/Users/mac/My-R-graph-gallery/motherNature_vs_terrorism/data/fatalities-from-terrorism.csv")
+fatalities <- read_csv("/Users/mac/My-R-graph-gallery/data/fatalities-from-terrorism.csv")
 
-disasters <- read_csv("/Users/mac/My-R-graph-gallery/motherNature_vs_terrorism/data/number-of-deaths-from-natural-disasters.csv")
+disasters <- read_csv("/Users/mac/My-R-graph-gallery/data/number-of-deaths-from-natural-disasters.csv")
 ```
 
 ```{r}
