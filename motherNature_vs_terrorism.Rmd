@@ -23,26 +23,30 @@ library(purrr)
 
 Load the datasets
 ```{r}
-fatalities <- read_csv("/Users/mac/My-R-graph-gallery/data/fatalities-from-terrorism.csv")
+deaths_terrorism <- read_csv("/Users/mac/My-R-graph-gallery/data/fatalities-from-terrorism.csv")
 
-disasters <- read_csv("/Users/mac/My-R-graph-gallery/data/number-of-deaths-from-natural-disasters.csv")
+deaths_disasters <- read_csv("/Users/mac/My-R-graph-gallery/data/number-of-deaths-from-natural-disasters.csv")
+
+deaths_terrorism
 ```
 
+
+# I will start with the deaths by terrorism dataset
 ```{r}
-fatalities %>%
+deaths_terrorism <- deaths_terrorism %>%
   filter(!(Entity == "International")) %>%
   rename(deaths = "Terrorism fatalities (GTD, 2018)") %>%
   # I will make the column `Year` categorical
-  mutate(Year = as.character(Year)) -> fatalities
+  mutate(Year = as.character(Year))
 
-fatalities
+deaths_terrorism
 ```
 
 Looking at the dataset, Countries are stored under the Entity column. 
 We can now look at the different countries in our dataset.
 
 ```{r}
-fatalities %>%
+deaths_terrorism %>%
   select(Entity) %>%
   distinct()
 ```
@@ -54,27 +58,25 @@ Knowing these will help us in performing continent specific fatalities.
 # Observation
 We have a `World` variable in the Entity column. We can simply use this to visualize the global fatalities.
 ```{r}
-fatalities %>%
-  filter(Entity == "World") -> world_fatality
+deaths_terrorism %>%
+  filter(Entity == "World") -> global_deaths_terro
 
-world_fatality
+global_deaths_terro
 ```
 I want to ensure the data from the World variable equals the data of all the countries of the world summed together. So I will get the fatality by country, group it by year and sum it.
 ```{r}
-fatalities %>%
-  filter(!(Entity %in% c("Australasia & Oceania", "Central America & Caribbean", "Central Asia", "East Asia", "Eastern Europe", "Middle East & North Africa", "North America", "South America", "South Asia", "Southeast Asia", "Sub-Saharan Africa", "Western Europe", "Western Sahara", "World"))) -> fatality_by_country
+deaths_terrorism %>%
+  filter(!(Entity %in% c("Australasia & Oceania", "Central America & Caribbean", "Central Asia", "East Asia", "Eastern Europe", "Middle East & North Africa", "North America", "South America", "South Asia", "Southeast Asia", "Sub-Saharan Africa", "Western Europe", "Western Sahara", "World"))) %>% group_by(Year) %>%
+  summarise(deaths = sum(deaths)) -> deaths_terro_country
 
-total_by_country <- fatality_by_country %>%
-  group_by(Year) %>%
-  summarise(deaths = sum(deaths))
-
-total_by_country
+deaths_terro_country
 ```
+
 I then compare the differences.
 ```{r}
-diff_deaths <- tibble(year = world_fatality$Year,
-                      deaths_world = world_fatality$deaths,
-                      deaths_country = total_by_country$deaths,
+diff_deaths <- tibble(year = global_deaths_terro$Year,
+                      deaths_world = global_deaths_terro$deaths,
+                      deaths_country = deaths_terro_country$deaths,
                       diff = deaths_world - deaths_country)
 
 diff_deaths
@@ -181,68 +183,5 @@ fatality_by_decade %>%
 
 ```{r}
 ggsave("plot.png", plt,width=9, height=12.6)
-```
-
-
-# We are now going to create a circular lollipop plot that shows the yearly number of deaths around the world and per continent. The two plots at the end will be combined together to form a dashboard.
-
-To start, lets get the fatalities by continent, group by year so as to ensure it tallies with the data from the world section.
-```{r}
-fatalities %>%
-  filter((Entity %in% c("Australasia & Oceania", "Central America & Caribbean", "Central Asia", "East Asia", "Eastern Europe", "Middle East & North Africa", "North America", "South America", "South Asia", "Southeast Asia", "Sub-Saharan Africa", "Western Europe", "Western Sahara"))) %>%
-  group_by(Year) %>%
-  summarise(Deaths = sum(deaths)) -> total_deaths_continent
-
-total_deaths_continent
-```
-
-```{r}
-diff_deaths2 <- tibble(year = world_fatality$Year,
-                      deaths_world = world_fatality$deaths,
-                      deaths_continent = total_deaths_continent$Deaths,
-                      diff = deaths_world - deaths_continent)
-
-diff_deaths2
-```
-Conclusion: Both groups of data tally.
-
-
-```{r}
-fatalities %>%
-  filter((Entity %in% c("Australasia & Oceania", "Central America & Caribbean", "Central Asia", "East Asia", "Eastern Europe", "Middle East & North Africa", "North America", "South America", "South Asia", "Southeast Asia", "Sub-Saharan Africa", "Western Europe", "Western Sahara"))) %>%
-  mutate(Continent = case_when(
-    str_detect(Entity, "Asia") ~ "Asia",
-    str_detect(Entity, "Europe") ~ "Europe",
-    TRUE ~ Entity
-  )) %>%
-  group_by(Continent, Year) %>%
-  summarise(Deaths = sum(deaths)) -> fatality_by_continents
-```
-
-Load required packages
-```{r}
-library(ggtext)
-library(patchwork)
-```
-
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
 ```
 
