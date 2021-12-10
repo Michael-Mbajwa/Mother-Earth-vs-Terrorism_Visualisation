@@ -5,7 +5,11 @@ date: "12/3/2021"
 output: pdf_document
 ---
 
-Objective of this is to develop a Circular Barplot that shows the amount of deaths per decades caused by terrorism from 1973 - 2017.
+TITLE: Mother Nature vs Terrorism : Which should scare us more?
+
+Objective of my visualization is to compare the deaths caused by mother nature against that caused by Terrorism across the globe.
+
+More background would be provided. But for now the rough idea is basically me showing reasons why much care should be given to mitigate natural disasters as has been given to the much more violent terrorism.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -17,10 +21,14 @@ library(broom)
 library(purrr)
 ```
 
-Load the dataset
+Load the datasets
 ```{r}
-fatalities <- read_csv("/Users/mac/My-R-graph-gallery/Global_terrorism/data/fatalities-from-terrorism.csv")
+fatalities <- read_csv("/Users/mac/My-R-graph-gallery/motherNature_vs_terrorism/data/fatalities-from-terrorism.csv")
 
+disasters <- read_csv("/Users/mac/My-R-graph-gallery/motherNature_vs_terrorism/data/number-of-deaths-from-natural-disasters.csv")
+```
+
+```{r}
 fatalities %>%
   filter(!(Entity == "International")) %>%
   rename(deaths = "Terrorism fatalities (GTD, 2018)") %>%
