@@ -19,13 +19,15 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(broom)
 library(purrr)
+library(plotly)
+library(stringr)
 ```
 
 Load the datasets
 ```{r}
-deaths_terrorism <- read_csv("/Users/mac/My-R-graph-gallery/data/fatalities-from-terrorism.csv")
+deaths_terrorism <- read_csv("data/fatalities-from-terrorism.csv")
 
-deaths_disasters <- read_csv("/Users/mac/My-R-graph-gallery/data/number-of-deaths-from-natural-disasters.csv")
+deaths_disasters <- read_csv("data/number-of-deaths-from-natural-disasters.csv")
 
 deaths_terrorism
 ```
@@ -82,12 +84,12 @@ diff_deaths <- tibble(year = global_deaths_terro$Year,
 diff_deaths
 ```
 # Conclusion
-I can conclude both groups of data are similar.
+I can conclude both groups of data are similar. The data can be trusted
 
 
 I want to first group by decades
 ```{r}
-world_fatality %>%
+global_deaths_terro %>%
   select(c(Year, deaths)) %>%
   mutate(Year = as.double(Year)) %>%
   mutate(Decade = case_when(
@@ -98,14 +100,14 @@ world_fatality %>%
     Year %in% c(2010:2019) ~ "2010s"
   )) %>%
   group_by(Decade) %>%
-  summarise(Deaths = sum(deaths)) -> fatality_by_decade
+  summarise(Deaths = sum(deaths)) -> decadal_terro_death
 
-fatality_by_decade
+decadal_terro_death
 ```
 
 # I can now go ahead to make the Circular Barplot
 ```{r}
-fatality_by_decade %>%
+decadal_terro_death %>%
   ggplot() +
   geom_col(aes(x = Decade,
                y = Deaths,
@@ -172,7 +174,7 @@ fatality_by_decade %>%
         legend.title = element_text(size = 18, face = "italic"))  +
   # add labels
   labs(title = "The Menance of Global Terrorism",
-    subtitle = "Visualization by Michael Mbajwa - michaelmbajwa@gmail.com\n\nThis visualization aims to show the global death toll\nfrom terrorism over the past four decades (1970-2017).\n",
+    subtitle = "Visualization by Michael Mbajwa - michaelmbajwa@gmail.com\n\nThis visualization aims to show the decadal global death toll caused by terrorism.\n",
     caption = "Source: https://ourworldindata.org") +
   # Customize general theme
   theme(text = element_text(color = "gray12", family = "serif"),
@@ -183,5 +185,29 @@ fatality_by_decade %>%
 
 ```{r}
 ggsave("plot.png", plt,width=9, height=12.6)
+```
+
+
+# Plot2: Global deaths from Natural Disasters
+
+I would like to plot a bubble chart that shows the decadal death toll caused by Natural disasters from 1900- 2020. I explored plotly for this chart
+
+# Explore the dataset to identify simple analysis to perform
+```{r}
+deaths_disasters
+```
+# Observations: Since I want to plot the global death toll, I will extract World from Entity. I would also like to remove deaths_ from each column.
+
+
+```{r}
+deaths_disasters %>%
+  filter(Entity == "World") %>%
+  rename_with(~str_to_title(sub(".*_", "", .x))) %>%
+  mutate(Year = as.character(Year)) %>%
+  select(!(Code)) %>%
+  pivot_longer(Earthquake:Wildfire, names_to = "Type", values_to = "Deaths")
+```
+```{r}
+
 ```
 
