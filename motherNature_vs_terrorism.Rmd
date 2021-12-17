@@ -125,6 +125,7 @@ decadal_terro_death %>%
   theme_light() +
   # I transform the chart to a circular chart
   coord_polar() +
+  # Manual annotations to replace the y-axis. Will help in showing amount of deaths for each polar axis
   annotate(x = "1970s",
            angle = -35,
            y = 50800,
@@ -174,8 +175,8 @@ decadal_terro_death %>%
         legend.text = element_text(size = 15),
         legend.title = element_text(size = 18, face = "italic"))  +
   # add labels
-  labs(title = "The Menance of Global Terrorism",
-    subtitle = "Visualization by Michael Mbajwa - michaelmbajwa@gmail.com\n\nThis visualization aims to show the decadal global death toll caused by terrorism.\n",
+  labs(title = "The Menance of Terrorism",
+    subtitle = "\nThis visualization aims to show the decadal global death toll caused by terrorism.\n",
     caption = "Source: https://ourworldindata.org") +
   # Customize general theme
   theme(text = element_text(color = "gray12", family = "serif"),
@@ -186,19 +187,19 @@ decadal_terro_death %>%
 
 
 ```{r}
-plot1
+ggsave("data/plot.png", plot1,width=9, height=12.6)
 ```
 
 
-
-```{r}
-ggsave("plot.png", plot1,width=9, height=12.6)
+# Display of the plot result
+```{r, echo=FALSE, out.width="50%", fig.cap="The Menance of Terrorism"}
+knitr::include_graphics("data/plot.png")
 ```
 
 
 # Effort 2: Global deaths from Natural Disasters
 
-I would like to plot a bubble chart that shows the decadal death toll caused by Natural disasters from 1900- 2020. I explored plotly for this chart
+I would like to plot a bubble chart that shows the death toll caused by Natural disasters from 1900-2020. I will use plotly to add tooltips at the end of the chart.
 
 # Explore the dataset to identify simple analysis to perform
 ```{r}
@@ -209,12 +210,17 @@ deaths_disasters
 
 ```{r}
 deaths_disasters %>%
+  # Select only world data
   filter(Entity == "World") %>%
+  # Remove each columns
   rename_with(~str_to_title(sub(".*_", "", .x))) %>%
+  # Remove column code
   select(!(Code)) %>%
+  # Pivot dataset to simplify analysis
   pivot_longer(Earthquake:Wildfire, names_to = "Type", values_to = "Deaths") %>%
+  # Data in column is originally scattered. It affects visualisation. Rearranged
   arrange(Year) %>%
-  # Use fct to order how disaster types are displayed on the char
+  # I use fct to order how disaster types are displayed on the plot
   # Create a text column to be used as a tooltip
   mutate(Type = fct_reorder(Type, desc(Type)),
          text = paste("Year:", Year,"\nType:", Type, "\nDeaths:", Deaths, sep = "")) -> global_death_disasters
@@ -223,49 +229,57 @@ deaths_disasters %>%
 global_death_disasters
 ```
 
+# Plot the bubble chart
 
 ```{r}
-plot2 <- global_death_disasters %>%
-  ggplot(aes(x = Year, y = Type, size=Deaths, color=Type, text = text)) +
-  geom_point(alpha = 0.5) +
-  scale_size(range = c(0.9, 13), name = "Death toll") +
+global_death_disasters %>%
+  ggplot(aes(x = Year, y = Type, size=Deaths, color=Type, text = text))+
+  geom_point(alpha=0.5) +
+  # Manually select colors for each disaster type
   scale_color_manual(values = c("Earthquake" = "#d2601a",
-                                "Drought" = "#d72631",
-                                "Wildfire" = "#d9138a",
-                                "Movement" = "purple",
-                                "Temperature" = "#322514",
-                                "Flood" = "Blue",
-                                "Landslide" = "black",
+                                "Drought" = "#184e77",
+                                "Wildfire" = "#cb0b0a",
+                                "Movement" = "#006d77",
+                                "Temperature" = "#6d597a",
+                                "Flood" = "#4cc9f0",
+                                "Landslide" = "#80b918",
                                 "Storm" = "#1d3c45",
-                                "Volcanic" = "darkgreen")) +
-  scale_x_continuous(n.breaks = 10, expand = c(0, 0), limits = c(1897, 2021)) +
+                                "Volcanic" = "#8e0413")) +
+  scale_size(range = c(1.1, 12)) +
   labs(title = "Global death toll from Natural disasters (1900-2016).",
        subtitle = "The size of the bubble represents the total death count per year, for each disaster type.",
        caption = "\n\nData source: https://ourworldindata.org",
        y = NULL,
        x = NULL) +
   theme_classic() +
+  # Fine tune the rest of the chart
   theme(axis.text.x = element_text(color="#000000"),
-        axis.text.y = element_text(vjust=0.5, hjust=1, color="#000000"),
+        axis.text.y = element_text(color="#000000"),
         legend.position = "none",
         text = element_text(color = "gray12", family = "serif"),
-        plot.title = element_text(face="bold", size = 16, hjust = -1,
+        plot.title = element_text(face="bold", size = 13, hjust = 0.5,
                                   color="#000000"),
-        plot.subtitle = element_text(size = 10, face = "italic", hjust = -0.7),
-        plot.caption = element_text(size = 10, hjust = 1, face = "italic", 
+        plot.subtitle = element_text(size = 8, face = "italic", hjust = 0.5),
+        plot.caption = element_text(size = 7, hjust = 1, face = "italic", 
                                     color = "blue"),
         axis.ticks.y = element_blank(),
-        axis.line.y = element_blank())
-
-plot2
+        axis.line.y = element_blank()) -> plot2
 ```
 
 
+# Display the plot result as a png file
+```{r, echo=FALSE, fig.cap="The Menance of Terrorism"}
+knitr::include_graphics("data/plot2.png")
+```
 
-# Interactive plot
+
+# Interactive plot with plotly
 ```{r}
 ggplotly(plot2, tooltip ="text")
 ```
+
+
+# Effort 3
 
 
 
