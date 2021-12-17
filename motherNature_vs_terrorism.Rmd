@@ -205,9 +205,14 @@ deaths_disasters %>%
   rename_with(~str_to_title(sub(".*_", "", .x))) %>%
   mutate(Year = as.character(Year)) %>%
   select(!(Code)) %>%
-  pivot_longer(Earthquake:Wildfire, names_to = "Type", values_to = "Deaths")
+  pivot_longer(Earthquake:Wildfire, names_to = "Type", values_to = "Deaths") -> global_death_disasters
+
+global_death_disasters
 ```
+
+
 ```{r}
+
 
 ```
 
