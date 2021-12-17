@@ -203,16 +203,19 @@ deaths_disasters
 deaths_disasters %>%
   filter(Entity == "World") %>%
   rename_with(~str_to_title(sub(".*_", "", .x))) %>%
-  mutate(Year = as.character(Year)) %>%
   select(!(Code)) %>%
-  pivot_longer(Earthquake:Wildfire, names_to = "Type", values_to = "Deaths") -> global_death_disasters
+  pivot_longer(Earthquake:Wildfire, names_to = "Type", values_to = "Deaths") %>%
+  arrange(Year)-> global_death_disasters
 
 global_death_disasters
 ```
 
 
 ```{r}
-
-
+global_death_disasters %>%
+  ggplot(aes(x = Year, y = Type, size=Deaths)) +
+  geom_point(alpha = 0.5) +
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=1)) +
+  scale_x_continuous(n.breaks = 10, expand = c(0, 0), limits = c(1898, 2021)) 
 ```
 
