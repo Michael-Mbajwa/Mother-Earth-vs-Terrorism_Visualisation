@@ -33,6 +33,7 @@ deaths_terrorism
 ```
 
 
+# Effort 1
 # I will start with the deaths by terrorism dataset
 ```{r}
 deaths_terrorism <- deaths_terrorism %>%
@@ -180,15 +181,22 @@ decadal_terro_death %>%
   theme(text = element_text(color = "gray12", family = "serif"),
     plot.title = element_text(face="bold", size = 25, hjust = 0.5, color="#bb0a21"),
     plot.subtitle = element_text(size = 19, hjust = 0.5, face = "italic"),
-    plot.caption = element_text(size = 18, hjust = .5, face = "italic")) -> plt
+    plot.caption = element_text(size = 18, hjust = .5, face = "italic")) -> plot1
 ```
+
 
 ```{r}
-ggsave("plot.png", plt,width=9, height=12.6)
+plot1
 ```
 
 
-# Plot2: Global deaths from Natural Disasters
+
+```{r}
+ggsave("plot.png", plot1,width=9, height=12.6)
+```
+
+
+# Effort 2: Global deaths from Natural Disasters
 
 I would like to plot a bubble chart that shows the decadal death toll caused by Natural disasters from 1900- 2020. I explored plotly for this chart
 
@@ -205,17 +213,59 @@ deaths_disasters %>%
   rename_with(~str_to_title(sub(".*_", "", .x))) %>%
   select(!(Code)) %>%
   pivot_longer(Earthquake:Wildfire, names_to = "Type", values_to = "Deaths") %>%
-  arrange(Year)-> global_death_disasters
+  arrange(Year) %>%
+  # Use fct to order how disaster types are displayed on the char
+  # Create a text column to be used as a tooltip
+  mutate(Type = fct_reorder(Type, desc(Type)),
+         text = paste("Year:", Year,"\nType:", Type, "\nDeaths:", Deaths, sep = "")) -> global_death_disasters
+
 
 global_death_disasters
 ```
 
 
 ```{r}
-global_death_disasters %>%
-  ggplot(aes(x = Year, y = Type, size=Deaths)) +
+plot2 <- global_death_disasters %>%
+  ggplot(aes(x = Year, y = Type, size=Deaths, color=Type, text = text)) +
   geom_point(alpha = 0.5) +
-  theme(axis.text.x = element_text(angle = 90, vjust=0.5, hjust=1)) +
-  scale_x_continuous(n.breaks = 10, expand = c(0, 0), limits = c(1898, 2021)) 
+  scale_size(range = c(0.9, 13), name = "Death toll") +
+  scale_color_manual(values = c("Earthquake" = "#d2601a",
+                                "Drought" = "#d72631",
+                                "Wildfire" = "#d9138a",
+                                "Movement" = "purple",
+                                "Temperature" = "#322514",
+                                "Flood" = "Blue",
+                                "Landslide" = "black",
+                                "Storm" = "#1d3c45",
+                                "Volcanic" = "darkgreen")) +
+  scale_x_continuous(n.breaks = 10, expand = c(0, 0), limits = c(1897, 2021)) +
+  labs(title = "Global death toll from Natural disasters (1900-2016).",
+       subtitle = "The size of the bubble represents the total death count per year, for each disaster type.",
+       caption = "\n\nData source: https://ourworldindata.org",
+       y = NULL,
+       x = NULL) +
+  theme_classic() +
+  theme(axis.text.x = element_text(color="#000000"),
+        axis.text.y = element_text(vjust=0.5, hjust=1, color="#000000"),
+        legend.position = "none",
+        text = element_text(color = "gray12", family = "serif"),
+        plot.title = element_text(face="bold", size = 16, hjust = -1,
+                                  color="#000000"),
+        plot.subtitle = element_text(size = 10, face = "italic", hjust = -0.7),
+        plot.caption = element_text(size = 10, hjust = 1, face = "italic", 
+                                    color = "blue"),
+        axis.ticks.y = element_blank(),
+        axis.line.y = element_blank())
+
+plot2
 ```
+
+
+
+# Interactive plot
+```{r}
+ggplotly(plot2, tooltip ="text")
+```
+
+
 
