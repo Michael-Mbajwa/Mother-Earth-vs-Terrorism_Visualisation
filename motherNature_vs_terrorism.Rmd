@@ -23,6 +23,7 @@ library(plotly)
 library(stringr)
 ```
 
+
 Load the datasets
 ```{r}
 deaths_terrorism <- read_csv("data/fatalities-from-terrorism.csv")
@@ -46,17 +47,11 @@ deaths_terrorism
 ```
 
 Looking at the dataset, Countries are stored under the Entity column. 
-We can now look at the different countries in our dataset.
 
-```{r}
-deaths_terrorism %>%
-  select(Entity) %>%
-  distinct()
-```
-Observation: We have a mixture of countries, and continents in our dataset. We also have deuplicated countries. Let's separate these. First of all, I have to manually identify the continents in the dataset. They are:
+Observation: We have a mixture of countries, and continents in our dataset. We also have duplicated countries. Let's separate these. First of all, I have to manually identify the continents in the dataset. They are:
 (Australasia & Oceania, Central America & Caribbean, Central Asia, East Asia, Eastern Europe, International, Middle East & North Africa, North America, South America, South Asia, Southeast Asia, Sub-Saharan Africa, Western Europe)
 
-Knowing these will help us in performing continent specific fatalities.
+Knowing these will help us in performing continent specific analysis.
 
 # Observation
 We have a `World` variable in the Entity column. We can simply use this to visualize the global fatalities.
@@ -66,7 +61,7 @@ deaths_terrorism %>%
 
 global_deaths_terro
 ```
-I want to ensure the data from the World variable equals the data of all the countries of the world summed together. So I will get the fatality by country, group it by year and sum it.
+I would like to ensure the deaths from the World Entity equals the deaths of all the countries of the world. So I will get the fatality by country, group it by year and sum it.
 ```{r}
 deaths_terrorism %>%
   filter(!(Entity %in% c("Australasia & Oceania", "Central America & Caribbean", "Central Asia", "East Asia", "Eastern Europe", "Middle East & North Africa", "North America", "South America", "South Asia", "Southeast Asia", "Sub-Saharan Africa", "Western Europe", "Western Sahara", "World"))) %>% group_by(Year) %>%
@@ -88,7 +83,7 @@ diff_deaths
 I can conclude both groups of data are similar. The data can be trusted
 
 
-I want to first group by decades
+Since I am producing a chart showing decadal death toll, I will first group the dataset by decades.
 ```{r}
 global_deaths_terro %>%
   select(c(Year, deaths)) %>%
@@ -183,11 +178,6 @@ decadal_terro_death %>%
     plot.title = element_text(face="bold", size = 25, hjust = 0.5, color="#bb0a21"),
     plot.subtitle = element_text(size = 19, hjust = 0.5, face = "italic"),
     plot.caption = element_text(size = 18, hjust = .5, face = "italic")) -> plot1
-```
-
-
-```{r}
-ggsave("data/plot.png", plot1,width=9, height=12.6)
 ```
 
 
