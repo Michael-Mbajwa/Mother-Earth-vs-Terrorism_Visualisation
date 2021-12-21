@@ -15,6 +15,7 @@ More background would be provided. But for now the rough idea is basically me sh
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+All these packages will be needed.
 ```{r}
 library(tidyverse)
 library(broom)
@@ -22,6 +23,7 @@ library(purrr)
 library(plotly)
 library(stringr)
 library(scales)
+library(cowplot)
 ```
 
 
@@ -30,8 +32,6 @@ Load the datasets
 deaths_terrorism <- read_csv("data/fatalities-from-terrorism.csv")
 
 deaths_disasters <- read_csv("data/number-of-deaths-from-natural-disasters.csv")
-
-deaths_terrorism
 ```
 
 
@@ -43,8 +43,6 @@ deaths_terrorism <- deaths_terrorism %>%
   rename(deaths = "Terrorism fatalities (GTD, 2018)") %>%
   # I will make the column `Year` categorical
   mutate(Year = as.character(Year))
-
-deaths_terrorism
 ```
 
 Looking at the dataset, Countries are stored under the Entity column. 
@@ -54,22 +52,23 @@ Observation: We have a mixture of countries, and continents in our dataset. We a
 
 Knowing these will help us in performing continent specific analysis.
 
+
+
 # Observation
 We have a `World` variable in the Entity column. We can simply use this to visualize the global fatalities.
 ```{r}
 deaths_terrorism %>%
   filter(Entity == "World") -> global_deaths_terro
-
-global_deaths_terro
 ```
+
+
 I would like to ensure the deaths from the World Entity equals the deaths of all the countries of the world. So I will get the fatality by country, group it by year and sum it.
 ```{r}
 deaths_terrorism %>%
   filter(!(Entity %in% c("Australasia & Oceania", "Central America & Caribbean", "Central Asia", "East Asia", "Eastern Europe", "Middle East & North Africa", "North America", "South America", "South Asia", "Southeast Asia", "Sub-Saharan Africa", "Western Europe", "Western Sahara", "World"))) %>% group_by(Year) %>%
   summarise(deaths = sum(deaths)) -> deaths_terro_country
-
-deaths_terro_country
 ```
+
 
 I then compare the differences.
 ```{r}
@@ -77,11 +76,9 @@ diff_deaths <- tibble(year = global_deaths_terro$Year,
                       deaths_world = global_deaths_terro$deaths,
                       deaths_country = deaths_terro_country$deaths,
                       diff = deaths_world - deaths_country)
-
-diff_deaths
 ```
 # Conclusion
-I can conclude both groups of data are similar. The data can be trusted
+I can conclude both groups of data are similar. The data can be trusted.
 
 
 Since I am producing a chart showing decadal death toll, I will first group the dataset by decades.
@@ -98,9 +95,8 @@ global_deaths_terro %>%
   )) %>%
   group_by(Decade) %>%
   summarise(Deaths = sum(deaths)) -> decadal_terro_death
-
-decadal_terro_death
 ```
+
 
 # I can now go ahead to make the Circular Barplot
 ```{r}
@@ -182,7 +178,7 @@ decadal_terro_death %>%
 ```
 
 
-# Display of the plot result
+# Effort 1
 ```{r, echo=FALSE, out.width="50%", fig.cap="The Menance of Terrorism"}
 knitr::include_graphics("data/plot.png")
 ```
@@ -215,13 +211,10 @@ deaths_disasters %>%
   # Create a text column to be used as a tooltip
   mutate(Type = fct_reorder(Type, desc(Type)),
          text = paste("Year:", Year,"\nType:", Type, "\nDeaths:", Deaths, sep = "")) -> global_death_disasters
-
-
-global_death_disasters
 ```
 
-# Plot the bubble chart
 
+# Plot the bubble chart
 ```{r}
 global_death_disasters %>%
   ggplot(aes(x = Year, y = Type, size=Deaths, color=Type, text = text))+
@@ -258,6 +251,7 @@ global_death_disasters %>%
 ```
 
 
+# Effort 2
 # Display the plot result as a png file
 ```{r, echo=FALSE, fig.cap="The Menance of Terrorism"}
 knitr::include_graphics("data/plot2.png")
@@ -271,7 +265,11 @@ ggplotly(plot2, tooltip ="text")
 
 
 # Effort 3
+This effort will be a chart comparing deaths from natural disasters against terrorism.
+Three separate plots will be made and merged to give the final plot.
 
+
+# First step, combine totals deaths from each group into one tibble
 ```{r}
 global_death_disasters %>%
   group_by(Year) %>%
@@ -282,12 +280,10 @@ global_death_disasters %>%
   select(Year, Deaths, deaths) %>%
   rename(Disaster_deaths = Deaths,
          Terrorism_deaths = deaths) -> total_deaths
-
-total_deaths
 ```
 
-terrorism #d72631 firebrick
-disaster #1e3d59
+
+# plot 1
 ```{r}
 total_deaths %>%
   ggplot(aes(x = Disaster_deaths,
@@ -297,10 +293,10 @@ total_deaths %>%
   scale_x_continuous(expand = c(0, 0), labels = comma) +
   theme_classic() +
   annotate(geom = "curve", x = 214400	, y = "1987", xend = 150000, yend = "1984",
-           curvature = .5, arrow = arrow(length = unit(2, "mm")), 
+           curvature = .3, arrow = arrow(length = unit(2, "mm")), 
            color = "firebrick") +
-  annotate(geom = "text", x = 215000, y = "1987", 
-           label = "459842 deaths.\nNoteable: The devastating impact \nof drought in Ethiopia.", 
+  annotate(geom = "text", x = 215000, y = "1988", 
+           label = "459842 deaths.\nNoteable: The devastating drought\nin Ethiopia.", 
            hjust = "left", color = "#1e3d59", size = 3, fontface = 2) +
   labs(title = "Deaths by natural disasters") +
   annotate(geom = "curve", x = 214400, y = "2014", xend = 150000, yend = "2011",
@@ -309,8 +305,7 @@ total_deaths %>%
   annotate(geom = "text", x = 215000, y = "2014", 
            label = "Noteable: Port-au-Prince earthquake, Haiti.", 
            hjust = "left", color = "#1e3d59", size = 3, fontface = 2) +
-  labs(title = "Deaths by natural disasters") +
-  theme(axis.text.y = element_text(color="#1e3d59", margin = margin(r=10)),
+  theme(axis.text.y = element_text(color="#1e3d59", margin = margin(r=6)),
         axis.line.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.title.x = element_blank(),
@@ -318,27 +313,29 @@ total_deaths %>%
         axis.title.y = element_blank(),
         axis.line.y = element_line(color = "#1e3d59"),
         axis.text.x = element_text(colour = "#1e3d59"),
-        title = element_text(face = "bold.italic", color = "#1e3d59", size = 8.5))
+        plot.title = element_text(face = "bold.italic", color = "#1e3d59", 
+                                  size = 8.5, hjust = 0)) -> bar_1
 ```
 
+
+# Plot 2
 ```{r}
 total_deaths %>%
   ggplot(aes(x = Terrorism_deaths,
              y = Year)) +
   geom_col(fill = "firebrick", width = 0.7) +
   scale_y_discrete(position = "right") +
-  scale_x_reverse(expand = c(0, 0), labels = comma) +
+  scale_x_reverse(expand = c(0, 0), labels = comma, breaks = c(40000, 0)) +
   theme_classic() +
   labs(title = "Deaths by Terrorism") +
   annotate(geom = "text", x = 45000, y = "1971", 
-           label = "Data source: https://ourworldindata.org", 
-           hjust = "left", color = "#1e3d59", size = 2.8, fontface = 2) +
-  annotate(geom = "curve", x = 30000, y = "2011", xend = 25000, yend = "2014",
-           curvature = .1, arrow = arrow(length = unit(2, "mm")), 
+           label = "Source:https://ourworldindata.org", 
+           hjust = "left", color = "#1e3d59", size = 2.5, fontface = 2) +
+  annotate(geom = "curve", x = 23000, y = "2011", xend = 25000, yend = "2014",
+           curvature = .03, arrow = arrow(length = unit(2, "mm")), 
            color = "#1e3d59") +
-  annotate(geom = "text", x = 30000, y = "2007",
-           label = "The taliban killed 4111 in Afghanistan.\nBoko Haram killed 6333 in Nigera, 779 in Cameroun.\nISIL killed 8604 in Iran.",color = "#1e3d59", size = 3, fontface = 2) +
-  labs(title = "Deaths by natural disasters") +
+  annotate(geom = "text", x = 25000, y = "2007",
+           label = "\n4111 in Afghan.\n6333 in Nigeria.\n779 in Cameroun.\n8604 in Iran.",color = "#1e3d59", size = 3, fontface = 2) +
   theme(axis.text.y = element_blank(),
         axis.text.x = element_text(color = "#1e3d59"),
         axis.title.x = element_blank(),
@@ -347,10 +344,27 @@ total_deaths %>%
         axis.line.y = element_line(color = "firebrick"),
         axis.line.x = element_line(colour = "#1e3d59"),
         plot.title = element_text(face = "bold.italic", color = "firebrick", 
-                                  size = 9.5, hjust = 1))
+                                  size = 8.5, hjust = 1)) -> bar_2
 ```
+
+# A text plot to be used as title
+```{r}
+ggplot() +
+   annotate("text", x = 10,  y = 10, label = "Terrorism                                                         ", color = "firebrick", size = 6, fontface = 4, hjust = 0.5) +
+  annotate("text", x = 10,  y = 10, label = "VS.  Mother Nature",
+           color = "#1e3d59", size = 6, fontface = 4, hjust = 0.57) + theme_void() -> text_plot
+```
+
 
 ```{r}
-
+ggdraw() +
+  draw_plot(text_plot, x = 0, y = 0.9, width = 1, height = 0.1) +
+  draw_plot(bar_2, x = 0, y = 0, width = 0.3, height = 0.9) +
+  draw_plot(bar_1, x = 0.3, y = 0, width = 0.7, height = 0.9) -> effort_3
 ```
 
+
+# Effort 3
+```{r, echo=FALSE, fig.cap="Terrorism VS. Mother Nature"}
+knitr::include_graphics("data/plot3.png")
+```
