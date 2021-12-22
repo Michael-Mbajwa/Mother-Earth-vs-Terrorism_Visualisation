@@ -217,8 +217,10 @@ deaths_disasters %>%
 # Plot the bubble chart
 ```{r}
 global_death_disasters %>%
-  ggplot(aes(x = Year, y = Type, size=Deaths, color=Type, text = text))+
+  mutate(Year = as.character(Year)) %>%
+  ggplot(aes(x = Year, y = Type, size=Deaths, color=Type, text = text)) +
   geom_point(alpha=0.5) +
+  scale_x_discrete(breaks = c("1900", "1920", "1940", "1960", "1980", "2000","2019"), expand = c(0.03,0)) +
   # Manually select colors for each disaster type
   scale_color_manual(values = c("Earthquake" = "#d2601a",
                                 "Drought" = "#184e77",
@@ -229,38 +231,43 @@ global_death_disasters %>%
                                 "Landslide" = "#80b918",
                                 "Storm" = "#1d3c45",
                                 "Volcanic" = "#8e0413")) +
-  scale_size(range = c(1.1, 12)) +
+  guides(color="none",
+         size=guide_legend(override.aes = list(size = c(2, 6, 8, 10),
+                                                 colour = "#ced7d8"))) +
+  scale_size(range = c(1.1, 12), labels = c("1", "100", "2000", "3000"), breaks = c(10000, 1000000, 2000000, 3000000)) +
   labs(title = "Global death toll from Natural disasters (1900-2016).",
        subtitle = "The size of the bubble represents the total death count per year, for each disaster type.",
        caption = "\n\nData source: https://ourworldindata.org",
        y = NULL,
-       x = NULL) +
+       x = NULL,
+       size = "Deaths x1000:") +
   theme_classic() +
   # Fine tune the rest of the chart
   theme(axis.text.x = element_text(color="#000000"),
         axis.text.y = element_text(color="#000000"),
-        legend.position = "none",
         text = element_text(color = "gray12", family = "serif"),
         plot.title = element_text(face="bold", size = 13, hjust = 0.5,
                                   color="#000000"),
-        plot.subtitle = element_text(size = 8, face = "italic", hjust = 0.5),
-        plot.caption = element_text(size = 7, hjust = 1, face = "italic", 
+        plot.subtitle = element_text(size = 11, face = "italic", hjust = 0.5),
+        plot.caption = element_text(size = 10, hjust = 1, face = "italic", 
                                     color = "blue"),
         axis.ticks.y = element_blank(),
-        axis.line.y = element_blank()) -> plot2
+        axis.line.y = element_blank(),
+        legend.title = element_text(face = "bold", size= 10),
+        legend.text = element_text(color = "black"),
+        legend.position = "bottom",
+        legend.margin=margin(t=0, r=0, b=-0.7, l=0, unit="cm"),
+        plot.margin = unit(c(0,0,0,0), "lines")) -> plot2
 ```
+
+I used this to save the plot
+# ggsave("data/plot2.png", plot2, height = 4)
 
 
 # Effort 2
 # Display the plot result as a png file
 ```{r, echo=FALSE, fig.cap="The Menance of Terrorism"}
 knitr::include_graphics("data/plot2.png")
-```
-
-
-# Interactive plot with plotly
-```{r}
-ggplotly(plot2, tooltip ="text")
 ```
 
 
@@ -347,6 +354,7 @@ total_deaths %>%
                                   size = 8.5, hjust = 1)) -> bar_2
 ```
 
+
 # A text plot to be used as title
 ```{r}
 ggplot() +
@@ -368,3 +376,5 @@ ggdraw() +
 ```{r, echo=FALSE, fig.cap="Terrorism VS. Mother Nature"}
 knitr::include_graphics("data/plot3.png")
 ```
+
+
