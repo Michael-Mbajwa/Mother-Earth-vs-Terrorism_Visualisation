@@ -108,12 +108,6 @@ decadal_terro_death %>%
            position = "dodge2",
            show.legend = TRUE,
            alpha = .9) +
-  geom_segment(aes(x = Decade,
-               y = 0,
-               xend = Decade,
-               yend = 200000),
-               linetype = "dashed",
-               color = "#333333") +
   theme_light() +
   # I transform the chart to a circular chart
   coord_polar() +
@@ -176,6 +170,10 @@ decadal_terro_death %>%
     plot.subtitle = element_text(size = 19, hjust = 0.5, face = "italic"),
     plot.caption = element_text(size = 18, hjust = .5, face = "italic")) -> plot1
 ```
+
+To save the plot
+# ggsave("data/plot.png", plot1, width=9, height=12.6)
+
 
 
 # Effort 1
