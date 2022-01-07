@@ -312,7 +312,8 @@ total_deaths %>%
   summarise(Disaster_deaths = sum(Disaster_deaths),
             Terrorism_deaths = sum(Terrorism_deaths)) %>%
   rename(`Natural Disasters` = Disaster_deaths,
-         `Terrorism` = Terrorism_deaths) %>%
+         `Terrorism` = Terrorism_deaths,
+         ` ` = Decade) %>%
   hux() %>%
   set_number_format(NA) %>%
   set_caption("Deaths caused by:") %>%
