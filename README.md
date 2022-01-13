@@ -12,8 +12,8 @@ APPROACH
 I approached this project the following way. 
 Step 1: I first created a visualization for the deaths in terrorism. I used a circular bar plot for this visualization. I was inspired by these visualizations; https://www.r-graph-gallery.com/circular-barplot.html. 
 
-Step 2: I create a scatter plot to show the deaths caused by natural disasters. Because there are different segments of natural disasters, my chart shows deaths broken down into each segment. I got inspiration for this plot from https://ourworldindata.org/natural-disasters?country=. T
+Step 2: I create a scatter plot to show the deaths caused by natural disasters. Because there are different segments of natural disasters, my chart shows deaths broken down into each segment. I got inspiration for this plot from https://ourworldindata.org/natural-disasters?country=.
 
 Step 3: I created a table summarizing the total decadal deaths due to natural disasters and terrorism.
 
-Step 4: For this final plot, I combined three separate plots into one. My inspiration was from a plot by https://public.tableau.com/app/profile/osmguy/viz/50YearsofAFCvsNFCMatchups/50YearsofAFCvs_NFCMatchups. I simply recreated this plot in R using several tricks. 
+Step 4: For this final plot, I combined three separate plots into one. My inspiration was from a plot by Ryan sleeper: https://public.tableau.com/app/profile/osmguy/viz/50YearsofAFCvsNFCMatchups/50YearsofAFCvs_NFCMatchups. I simply recreated this plot in R using several tricks. 
