@@ -43,7 +43,7 @@ library(cowplot)
 library(huxtable)
 library(qwraps2)
 ```
-
+> Extra packages are not recorded in renv
 
 Load the datasets
 ```{r}
@@ -51,7 +51,6 @@ deaths_terrorism <- read_csv("data/fatalities-from-terrorism.csv")
 
 deaths_disasters <- read_csv("data/number-of-deaths-from-natural-disasters.csv")
 ```
-
 
 
 # Effort 1
@@ -203,6 +202,7 @@ knitr::include_graphics("data/plot.png")
 Comment: 
 (Data ink ratio) I considered removing the circular axis text for number of deaths since there is already a color legend under. But, I ignored that because the deaths from 1970s - 2000s were all low and hence, they fell under one color gradient. Relying on color won't help someone to really differentiate the number of deaths. I also considered adding an annotation instead of an axis, but I couldn't figure out how to annotate while maintaining the current state of the chart.
 
+> Good plot, emphasizing the deaths through terrorism in the 2010s more than a plain barplot would. I would not save and re-read the plot from file because you won't get to see problems with a plot (e.g. if it's failing) although many people prefer to do it your way.
 
 
 # Effort 2: Global deaths from Natural Disasters
