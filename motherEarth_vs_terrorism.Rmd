@@ -45,6 +45,9 @@ library(qwraps2)
 ```
 > Extra packages are not recorded in renv
 
+> The resulting HTML page is a bit hard to follow - I had thought of a report with less code.
+> It also contains `deaths_disasters` as one big output, which is a bit inconvenient. 
+
 Load the datasets
 ```{r}
 deaths_terrorism <- read_csv("data/fatalities-from-terrorism.csv")
@@ -294,6 +297,8 @@ I used this to save the plot
 knitr::include_graphics("data/plot2.png")
 ```
 
+> Nice visualisation again. 
+
 # Effort 3
 This effort will be a chart comparing deaths from natural disasters against terrorism.
 Three separate plots will be made and merged to give the final plot.
@@ -337,7 +342,7 @@ total_deaths %>%
   add_footnote(text = "Data source: https://ourworldindata.org") %>%
   theme_article()
 ```
-
+> Good summary table.
 
 # plot 1 - A bar chart showing yearly deaths from Natural disasters
 ```{r}
@@ -437,3 +442,5 @@ ggdraw() +
 knitr::include_graphics("data/plot3.png")
 ```
 
+> Overall great work, I learned from the display of data. 
+> Try knitting the product before submitting a report, you probably worked predominantly within RStudio. Headings (starting with `#`) should be used for headings, not comments as in code. The come out to big. 
